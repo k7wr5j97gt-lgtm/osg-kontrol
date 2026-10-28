@@ -1,0 +1,35 @@
+{
+
+  "name": "ОСГ Контроль",
+
+  "short_name": "ОСГ Контроль",
+
+  "description": "Калькулятор остаточного срока годности для операторов выкладки",
+
+  "start_url": "./",
+
+  "scope": "./",
+
+  "display": "standalone",
+
+  "background_color": "#f3f7f5",
+
+  "theme_color": "#123b35",
+
+  "icons": [
+
+    {
+
+      "src": "icon.svg",
+
+      "sizes": "any",
+
+      "type": "image/svg+xml",
+
+      "purpose": "any"
+
+    }
+
+  ]
+
+}
