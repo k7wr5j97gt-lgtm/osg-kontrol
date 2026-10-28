@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#123b35">
+  <meta name="description" content="Калькулятор остаточного срока годности для операторов выкладки.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <title>ОСГ Контроль</title>
+  <style>
+    :root { color-scheme: light; --ink:#18312e; --muted:#687975; --line:#dce6e2; --bg:#f3f7f5; --green:#176b55; --green2:#e1f4eb; --red:#a52e32; --redbg:#fff0ef; --amber:#8b5b00; --amberbg:#fff5d9; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif; background:var(--bg); color:var(--ink); }
+    .wrap { max-width:620px; margin:auto; padding:20px 14px 36px; }
+    header { display:flex; align-items:center; gap:13px; margin:4px 0 20px; }
+    .logo { width:54px; height:54px; border-radius:17px; background:#123b35; color:white; display:grid; place-items:center; flex-shrink:0; }
+    h1 { font-size:23px; margin:0 0 4px; letter-spacing:-.4px; }
+    .sub { color:var(--muted); font-size:13px; }
+    .card { background:white; border:1px solid var(--line); border-radius:20px; padding:18px; margin:13px 0; box-shadow:0 3px 14px #153d2b08; }
+    h2 { font-size:16px; margin:0 0 15px; }
+    label { display:block; font-size:13px; font-weight:650; margin:12px 0 7px; }
+    input, select { width:100%; min-height:47px; border:1px solid #cbd8d3; border-radius:12px; background:white; padding:11px 12px; font:inherit; color:var(--ink); }
+    input:focus, select:focus { outline:3px solid #bde8d6; border-color:var(--green); }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .pills { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+    .pill { position:relative; }
+    .pill input { position:absolute; opacity:0; width:1px; height:1px; }
+    .pill span { min-height:42px; display:grid; place-items:center; border:1px solid var(--line); border-radius:11px; font-weight:700; font-size:14px; background:#fff; }
+    .pill input:checked + span { background:var(--green2); border-color:var(--green); color:var(--green); }
+    .hint { font-size:12px; line-height:1.45; color:var(--muted); margin:9px 0 0; }
+    .result { background:#123b35; color:white; border-radius:18px; padding:19px; }
+    .result-label { color:#c4ddd4; font-size:13px; }
+    .big { font-size:42px; font-weight:800; letter-spacing:-1.5px; margin:3px 0 2px; font-variant-numeric:tabular-nums; }
+    .stats { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-top:17px; }
+    .stat { border:1px solid #ffffff28; border-radius:12px; padding:12px; min-width:0; }
+    .stat small { display:block; color:#c4ddd4; font-size:11px; margin-bottom:7px; }
+    .stat strong { font-size:19px; font-variant-numeric:tabular-nums; }
+    .decision { margin-top:13px; border-radius:14px; padding:14px; font-weight:800; line-height:1.35; }
+    .decision small { display:block; font-weight:500; margin-top:5px; }
+    .danger { color:var(--red); background:var(--redbg); }
+    .safe { color:var(--green); background:var(--green2); }
+    .warn { color:var(--amber); background:var(--amberbg); }
+    .error { color:var(--red); font-size:13px; margin-top:10px; }
+    .dateout { font-size:23px; font-weight:800; margin-top:5px; }
+    .btn { width:100%; border:0; border-radius:12px; padding:14px; background:var(--green); color:white; font:inherit; font-weight:750; margin-top:12px; }
+    footer { text-align:center; color:var(--muted); font-size:11px; line-height:1.5; padding:9px 10px; }
+    @media (max-width:380px) { .grid { grid-template-columns:1fr; } .pills { grid-template-columns:repeat(4,1fr); } .card { padding:15px; } }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <div class="logo" aria-hidden="true">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="12" stroke="white" stroke-width="2"/><path d="M16 8v8l5 3" stroke="white" stroke-width="2.5" stroke-linecap="round"/><path d="M10 2.8 7.5 5M22 2.8 24.5 5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      <div><h1>ОСГ Контроль</h1><div class="sub">Срок годности · выкладка · ночной заказ</div></div>
+    </header>
+
+    <section class="card">
+      <h2>1. Даты товара</h2>
+      <label for="production">Дата производства</label>
+      <input id="production" type="date">
+      <label for="expiry">Дата окончания срока годности</label>
+      <input id="expiry" type="date">
+      <label for="night">Дата ночной сборки заказа</label>
+      <input id="night" type="date">
+      <p class="hint">Укажите даты с упаковки и ночь, когда заказ будут собирать для утренней отгрузки.</p>
+    </section>
+
+    <section class="card">
+      <h2>2. Минимальный порог ОСГ</h2>
+      <div class="pills" role="radiogroup" aria-label="Порог ОСГ">
+        <label class="pill"><input type="radio" name="percent" value="50"><span>50%</span></label>
+        <label class="pill"><input type="radio" name="percent" value="55"><span>55%</span></label>
+        <label class="pill"><input type="radio" name="percent" value="60" checked><span>60%</span></label>
+        <label class="pill"><input type="radio" name="percent" value="65"><span>65%</span></label>
+        <label class="pill"><input type="radio" name="percent" value="70"><span>70%</span></label>
+        <label class="pill"><input type="radio" name="percent" value="80"><span>80%</span></label>
+        <label class="pill"><input type="radio" name="percent" value="90"><span>90%</span></label>
+        <label class="pill"><input type="radio" name="percent" value="100"><span>100%</span></label>
+      </div>
+      <label for="customPercent">Или свой процент (необязательно)</label>
+      <input id="customPercent" type="number" inputmode="decimal" min="0" max="100" placeholder="Оставьте пустым для выбора выше">
+      <p class="hint">Выбирайте порог по действующему правилу для категории и поставщика.</p>
+    </section>
+
+    <section class="card">
+      <h2>3. Результат</h2>
+      <div class="result" aria-live="polite">
+        <div class="result-label">ОСГ на утро после ночной сборки</div>
+        <div class="big" id="osg">—%</div>
+        <div class="result-label" id="resultCaption">Заполните даты, чтобы рассчитать остаток</div>
+        <div class="stats">
+          <div class="stat"><small>Полный срок</small><strong id="totalDays">— дн.</strong></div>
+          <div class="stat"><small>Остаток на утро</small><strong id="remaining">— дн.</strong></div>
+          <div class="stat"><small>Минимум по правилу</small><strong id="minimum">— дн.</strong></div>
+          <div class="stat"><small>Выбранный порог</small><strong id="threshold">60%</strong></div>
+        </div>
+      </div>
+      <div id="decision" class="decision warn">Введите даты для расчёта.</div>
+      <div class="hint">Расчётная дата снятия с витрины</div>
+      <div id="removeDate" class="dateout">—</div>
+      <div id="error" class="error" role="alert"></div>
+      <button id="reset" class="btn" type="button">Очистить даты</button>
+    </section>
+
+    <footer>
+      Калькулятор использует выбранный процент как минимальный порог остатка ОСГ. Перед применением сверяйте расчёт с действующим регламентом магазина. Данные обрабатываются на этом устройстве.
+    </footer>
+  </main>
+  <script src="app.js"></script>
+  <script>
+    if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+      window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+    }
+  </script>
+</body>
+</html>
